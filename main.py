@@ -1,3 +1,11 @@
+from otel import CustomLogFW
+import logging
+
+logFW = CustomLogFW(service_name='adventure')
+handler = logFW.setup_logging()
+logging.getLogger().addHandler(handler)
+
+
 class AdventureGame:
     def __init__(self):
         self.game_active = True
@@ -84,6 +92,7 @@ class AdventureGame:
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
+        logging.info("list_actions: %s", actions)
         return f"Available actions: {', '.join(actions)}"
 
     def process_command(self, command):
@@ -116,11 +125,13 @@ class AdventureGame:
 
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
+        logging.info("play: Welcome to your text adventure! Type 'quit' to exit.")
         print(f"{self.locations[self.current_location]['description']}\n{self.list_actions()}")
         while self.game_active:
             command = input(">>> ")
             response = self.process_command(command)
             print(response)
+            logging.info(response)
 
 if __name__ == "__main__":
     game = AdventureGame()
