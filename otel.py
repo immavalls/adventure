@@ -2,7 +2,7 @@
 from opentelemetry._logs import set_logger_provider
 
 # Import the OTLPLogExporter class from the OpenTelemetry gRPC log exporter module.
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 
 # Import the LoggerProvider and LoggingHandler classes from the OpenTelemetry SDK logs module.
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -33,7 +33,8 @@ class CustomLogFW:
         self.logger_provider = LoggerProvider(
             resource=Resource.create(
                 {
-                    "service.name": service_name
+                    "service.name": service_name,
+                    "service.instance.id": "instance-1"
                 }
             )
         )
@@ -48,7 +49,7 @@ class CustomLogFW:
         set_logger_provider(self.logger_provider)
 
         # Create an instance of OTLPLogExporter with insecure connection.
-        exporter = OTLPLogExporter(endpoint="http://localhost:4317", insecure=True)
+        exporter = OTLPLogExporter()
 
         # Add a BatchLogRecordProcessor to the logger provider with the exporter.
         self.logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter=exporter, max_queue_size=1, max_export_batch_size=1 ))

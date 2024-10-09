@@ -4,6 +4,7 @@ import logging
 logFW = CustomLogFW(service_name='adventure')
 handler = logFW.setup_logging()
 logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel(logging.INFO)
 
 
 class AdventureGame:
