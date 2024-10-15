@@ -16,6 +16,37 @@ from opentelemetry.sdk.resources import Resource
 # Import the logging module.
 import logging
 
+
+# Import the metrics module from OpenTelemetry.
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from prometheus_client import start_http_server
+
+class CustomMetrics:
+    def __init__(self, service_name):
+        try:
+
+            # Create a Prometheus metric reader.
+            metric_reader = PrometheusMetricReader()
+
+            # Create an instance of MeterProvider with a Resource object that includes
+            # service name and instance ID, identifying the source of the metrics.
+            self.meter_provider = MeterProvider(resource=Resource.create({"service.name": service_name, "service.instance.id": "instance-1"}), metric_readers=[metric_reader])
+            metrics.set_meter_provider(self.meter_provider)
+
+            self.meter = metrics.get_meter(__name__)
+            print("Metrics configured with OpenTelemetry.")
+        except Exception as e:
+            print(f"Error: {e}")
+    
+    def get_meter(self):
+        return self.meter
+
+    def start_prometheus_server(self):
+        start_http_server(1337)
+
 class CustomLogFW:
     """
     CustomLogFW sets up logging using OpenTelemetry with a specified service name and instance ID.
