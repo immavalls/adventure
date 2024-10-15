@@ -1,14 +1,32 @@
-from otel import CustomLogFW
+from otel import CustomLogFW, CustomMetrics
+from opentelemetry import metrics
 import logging
-
-logFW = CustomLogFW(service_name='adventure')
-handler = logFW.setup_logging()
-logging.getLogger().addHandler(handler)
-logging.getLogger().setLevel(logging.INFO)
-
 
 class AdventureGame:
     def __init__(self):
+        logFW = CustomLogFW(service_name='adventure')
+        handler = logFW.setup_logging()
+        logging.getLogger().addHandler(handler)
+        logging.getLogger().setLevel(logging.INFO)
+
+        metrics = CustomMetrics(service_name='adventure')
+        meter = metrics.get_meter()
+        metrics.start_prometheus_server()
+
+        # Create an observable gauge for the forge heat level.
+        self.forge_heat_gauge = meter.create_observable_gauge(
+            name="forge_heat",
+            description="The current heat level of the forge",
+            callbacks=[self.observe_forge_heat]
+        )
+
+        # Create an observable gauge for how many swords have been forged.
+        self.swords_gauge = meter.create_observable_gauge(
+            name="swords",
+            description="The number of swords forged",
+            callbacks=[self.observe_swords]
+        )
+
         self.game_active = True
         self.current_location = "start"
         self.heat = 10  # Example variable to track heat at the blacksmith
@@ -62,13 +80,24 @@ class AdventureGame:
                 }
             }
         }
+    
+    def observe_forge_heat(self, observer):
+        return [metrics.Observation(value=self.heat, attributes={"location": "blacksmith"})]
+    
+    def observe_swords(self, observer):
+        sword_count = 0
+        if self.has_sword:
+            sword_count = 1
+        return [metrics.Observation(value=sword_count, attributes={})]
 
     def reduce_heat(self):
         self.heat -= 5
+        #self.forge_heat_gauge.set(self.heat)
         return f"The heat of the forge is now {self.heat}."
 
     def increase_heat(self):
         self.heat += 10
+        #self.forge_heat_gauge.set(self.heat)
         return f"The heat of the forge is now {self.heat}."
 
     def request_sword(self):
