@@ -84,7 +84,7 @@ class CustomLogFW:
         exporter = OTLPLogExporter()
 
         # Add a BatchLogRecordProcessor to the logger provider with the exporter.
-        self.logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter=exporter, max_queue_size=1, max_export_batch_size=1 ))
+        self.logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter=exporter, max_queue_size=5, max_export_batch_size=1 ))
 
         # Create a LoggingHandler with the specified logger provider and log level set to NOTSET.
         handler = LoggingHandler(level=logging.NOTSET, logger_provider=self.logger_provider)

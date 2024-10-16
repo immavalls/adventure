@@ -32,11 +32,16 @@ class AdventureGame:
         self.heat = 10  # Example variable to track heat at the blacksmith
         self.sword_requested = False  # Track if the blacksmith has been asked to forge a sword
         self.has_sword = False # Track if the sword has been forged
+        self.has_evil_sword = False # Track if the sword has been enchanted by the evil wizard
+        self.has_holy_sword = False # Track if the sword has been enchanted by the chapel priest
+        self.quest_accepted = False # Track if the quest has been accepted
+
         self.locations = {
             "start": {
                 "description": "You are at the beginning of your adventure. There's a path leading north.",
                 "actions": {
-                    "go north": {"next_location": "forest"}
+                    "go north": {"next_location": "forest"},
+                    "cheat": {"message": "You cheat and get a sword. You feel guilty", "effect": self.cheat}
                 }
             },
             "forest": {
@@ -44,7 +49,7 @@ class AdventureGame:
                 "actions": {
                     "go north": {"next_location": "cave"},
                     "go south": {"next_location": "start"},
-                    "go east": {"next_location": "blacksmith"},
+                    "go to town": {"next_location": "town"},
                     "pick herb": {"message": "You pick some useful herbs from the forest floor."}
                 }
             },
@@ -77,8 +82,33 @@ class AdventureGame:
                         "effect": self.check_sword,
                         "pre_requisite": self.is_sword_requested
                     },
+                    "go to town": {"next_location": "town"}
                 }
-            }
+            },
+            "town": {
+                "description": "You are in a bustling town. People are going about their business. Paths lead north, south, east, and west.",
+                "actions": {
+                    "blacksmith": {"next_location": "blacksmith"},
+                    "mysterious man": {"next_location": "wizard", "pre_requisite": self.check_inventory},
+                    "quest giver": {"next_location": "quest"},
+                    "chapel": {"next_location": "chapel"}
+                }
+            },
+            "wizard": {
+                "description": "You meat a mysterious wizard. He offers to enhance your sword with magic.",
+                "actions": {
+                    "accept his offer": {"message": "A great choice indeed. Your sword is now enchanted with great power.", "effect": self.evil_wizard},
+                    "decline his offer": {"message": "You will not get another chance. ACCEPT MY OFFER!"},
+                    "go to town": {"next_location": "town"}
+                }
+            },
+            "quest": {
+                "description": "You meet a quest giver. He offers you a quest to defeat the evil wizard.",
+                "actions": {
+                    "accept quest": {"message": "You have accepted the quest. You must now go to the wizard's tower and defeat him.", "effect": self.quest_giver},
+                    "go to town": {"next_location": "town"}
+                }
+            },
         }
     
     def observe_forge_heat(self, observer):
@@ -109,6 +139,14 @@ class AdventureGame:
 
     def is_sword_requested(self):
         return self.sword_requested
+    
+    def check_inventory(self):
+        return self.has_sword
+
+    def cheat(self):
+        self.has_sword = True
+        return "You should continue north you cheater."
+    
 
     def check_sword(self):
         if self.heat >= 25 and self.heat < 30:
@@ -119,10 +157,27 @@ class AdventureGame:
             return "The sword is almost ready, but it's slightly too hot. You need to cool the forge down a bit."
         else:
             return "The sword is not ready yet. The forge is not hot enough."
+    
+    # Evil wizard scenario
+    def evil_wizard(self):
+        self.has_sword = False
+        self.has_evil_sword = True
+
+        logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
+        logging.error("The evil wizard has enchanted your sword with dark magic. You feel a chill run down your spine. This is a warning...")
+        return "You feel funny but powerful. Maybe I should accept a quest."
+    
+    def quest_giver(self):
+        if self.has_evil_sword:
+            logging.critical("The sword whispers; I killed him! you will never destroy the wizard for me in your hands!")
+            self.current_location = "town"
+            return "The quest giver turns pale. He then collapses. Dead! What do I do now?"
+        else:
+            self.quest_accepted = True
+            return "You have accepted the quest. You must now go to the wizard's tower and defeat him."
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
-        logging.info("list_actions: %s", actions)
         return f"Available actions: {', '.join(actions)}"
 
     def process_command(self, command):
