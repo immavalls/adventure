@@ -45,7 +45,7 @@ class AdventureGame:
                 }
             },
             "forest": {
-                "description": "You are in a dark forest. The trees are thick and you can barely see sunlight. Paths lead north, south, and east.",
+                "description": "You are in a dark forest. The trees are thick and you can barely see sunlight. Paths lead north, south, and to a small town.",
                 "actions": {
                     "go north": {"next_location": "cave"},
                     "go south": {"next_location": "start"},
@@ -86,7 +86,7 @@ class AdventureGame:
                 }
             },
             "town": {
-                "description": "You are in a bustling town. People are going about their business. Paths lead north, south, east, and west.",
+                "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
                 "actions": {
                     "blacksmith": {"next_location": "blacksmith"},
                     "mysterious man": {"next_location": "wizard", "pre_requisite": self.check_inventory},
