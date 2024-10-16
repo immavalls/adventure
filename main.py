@@ -11,7 +11,7 @@ class AdventureGame:
 
         metrics = CustomMetrics(service_name='adventure')
         meter = metrics.get_meter()
-        metrics.start_prometheus_server()
+        
 
         # Create an observable gauge for the forge heat level.
         self.forge_heat_gauge = meter.create_observable_gauge(

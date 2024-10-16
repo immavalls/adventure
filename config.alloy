@@ -3,12 +3,24 @@ otelcol.receiver.otlp "default" {
   grpc {}
 
   output {
-    logs    = [otelcol.exporter.otlphttp.default.input]
+    metrics = [otelcol.exporter.otlphttp.metrics.input]
+    logs    = [otelcol.exporter.otlphttp.logs.input]
   }
 }
 
-otelcol.exporter.otlphttp "default" {
+otelcol.exporter.otlphttp "logs" {
   client {
     endpoint = "http://loki:3100/otlp"
   }
+
+}
+
+otelcol.exporter.otlphttp "metrics" {
+  client {
+    endpoint = "http://prometheus:9090/api/v1/otlp"
+  }
+}
+
+livedebugging {
+  enabled = true
 }
