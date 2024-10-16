@@ -1,9 +1,15 @@
 apiVersion: 1
 datasources:
-- name: Loki
+- name: loki
   type: loki
   access: proxy
   url: http://loki:3100
 - name: prometheus
   type: prometheus
   url: http://prometheus:9090
+  jsonData:
+    prometheusType: Prometheus
+    prometheusVersion: 2.50.0
+    cacheLevel: 'None'
+    timeInterval: 3s
+
