@@ -145,6 +145,8 @@ class AdventureGame:
 
     def cheat(self):
         self.has_sword = True
+        sword_count = 1
+        metrics.Observation(value=sword_count, attributes={})
         return "You should continue north you cheater."
     
 
