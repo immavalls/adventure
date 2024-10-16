@@ -1,6 +1,8 @@
 # Quest World
 
+<div align="center">
 <img src="./img/logo.png" alt="Quest" width="200"/>
+</div>
 
 ## Installation
 
