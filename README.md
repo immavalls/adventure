@@ -1,6 +1,6 @@
 # Quest World
 
-![Quest](./img/logo.png)
+<img src="./img/logo.png" alt="Quest" width="200"/>
 
 ## Installation
 
