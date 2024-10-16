@@ -35,6 +35,7 @@ class AdventureGame:
         self.has_evil_sword = False # Track if the sword has been enchanted by the evil wizard
         self.has_holy_sword = False # Track if the sword has been enchanted by the chapel priest
         self.quest_accepted = False # Track if the quest has been accepted
+        self.priest_alive = True
 
         self.locations = {
             "start": {
@@ -109,6 +110,14 @@ class AdventureGame:
                     "go to town": {"next_location": "town"}
                 }
             },
+            "chapel": {
+                "description": "You enter the chapel. The priest greets you warmly.",
+                "actions": {
+                    "look at sword": {"message": "The priest looks at your sword", "effect": self.priest},
+                    "pray": {"message": "You pray for guidance."},
+                    "go to town": {"next_location": "town"}
+                }
+            }
         }
     
     def observe_forge_heat(self, observer):
@@ -149,6 +158,21 @@ class AdventureGame:
         metrics.Observation(value=sword_count, attributes={})
         return "You should continue north you cheater."
     
+    def priest(self):
+        if self.has_sword:
+            self.has_holy_sword = True
+            return "The priest blesses your sword. You feel a warm glow."
+        if self.has_evil_sword:
+            self.has_evil_sword = False
+            self.has_holy_sword = True
+            self.priest_alive = False
+
+            logging.warning("The priest transfers the curse from the sword to himself. He falls to the ground.")
+            logging.warning("The sword is now blessed. You feel a warm glow.")
+            return "The priest looks at your sword with fear. My child, this sword is cursed. I will transfer the curse to me."
+        else:
+            return "The priest looks at your empty hands. You feel a little embarrassed."
+    
 
     def check_sword(self):
         if self.heat >= 25 and self.heat < 30:
@@ -171,12 +195,18 @@ class AdventureGame:
     
     def quest_giver(self):
         if self.has_evil_sword:
-            logging.critical("The sword whispers; I killed them! you will never destroy the wizard with me in your hands!")
+            logging.critical("The sword whispers; I killed them! you will never destroy the wizard with me in your hands! Hahahaha")
             self.current_location = "town"
-            return "The quest giver turns pale. He then collapses. Dead! What do I do now?"
-        else:
+            return "The quest giver turns pale. They collapses. Dead! What do I do now?"
+        elif self.has_holy_sword:
+            logging.warning("The sword whispers; I will help you defeat the wizard. I am your only hope.")
             self.quest_accepted = True
-            return "You have accepted the quest. You must now go to the wizard's tower and defeat him."
+            return "Wow! You have such a powerful sword. I will give you a quest to defeat the evil wizard."
+        elif self.has_sword:
+            logging.warning("Your sword is not powerful enough to defeat the wizard. You should go to the chapel.")
+            return "The quest giver looks at your sword. You should go to the chapel."
+        else:
+            return "You don't have a sword. The quest giver looks at you with disappointment."
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
@@ -218,7 +248,7 @@ class AdventureGame:
             command = input(">>> ")
             response = self.process_command(command)
             print(response)
-            logging.info(response)
+            logging.debug(response)
 
 if __name__ == "__main__":
     game = AdventureGame()
