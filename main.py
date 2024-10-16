@@ -105,7 +105,7 @@ class AdventureGame:
             "quest": {
                 "description": "You meet a quest giver. He offers you a quest to defeat the evil wizard.",
                 "actions": {
-                    "accept quest": {"message": "You have accepted the quest. You must now go to the wizard's tower and defeat him.", "effect": self.quest_giver},
+                    "accept quest": {"message": "You tell the quest give you would like to accept...", "effect": self.quest_giver},
                     "go to town": {"next_location": "town"}
                 }
             },
@@ -169,7 +169,7 @@ class AdventureGame:
     
     def quest_giver(self):
         if self.has_evil_sword:
-            logging.critical("The sword whispers; I killed him! you will never destroy the wizard for me in your hands!")
+            logging.critical("The sword whispers; I killed them! you will never destroy the wizard with me in your hands!")
             self.current_location = "town"
             return "The quest giver turns pale. He then collapses. Dead! What do I do now?"
         else:
