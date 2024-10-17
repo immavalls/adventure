@@ -104,7 +104,7 @@ class AdventureGame:
                 }
             },
             "wizard": {
-                "description": "You meat a mysterious wizard. He offers to enhance your sword with magic.",
+                "description": "You meet a mysterious wizard. He offers to enhance your sword with magic.",
                 "actions": {
                     "accept his offer": {"message": "A great choice indeed. Your sword is now enchanted with great power.", "effect": self.evil_wizard},
                     "decline his offer": {"message": "You will not get another chance. ACCEPT MY OFFER!"},
@@ -203,9 +203,13 @@ class AdventureGame:
         return "You should continue north you cheater."
     
     def priest(self):
-        if self.has_sword:
+        if self.has_holy_sword:
+            return "I have already blessed your sword child, go now and use it well."
+        
+        if self.has_sword and not self.has_evil_sword:
             self.has_holy_sword = True
             return "The priest blesses your sword. You feel a warm glow."
+        
         if self.has_evil_sword:
             self.has_evil_sword = False
             self.has_holy_sword = True
@@ -231,7 +235,6 @@ class AdventureGame:
     
     # Evil wizard scenario
     def evil_wizard(self):
-        self.has_sword = False
         self.has_evil_sword = True
 
         logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
