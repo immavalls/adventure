@@ -287,13 +287,15 @@ class AdventureGame:
 
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
-        logging.info("play: Welcome to your text adventure! Type 'quit' to exit.")
+        logging.info("Welcome to your text adventure! Type 'quit' to exit.")
         print(f"{self.locations[self.current_location]['description']}\n{self.list_actions()}")
+        logging.info(f"{self.locations[self.current_location]['description']}\n{self.list_actions()}")
         while self.game_active:
             command = input(">>> ")
+            logging.info("Action: " + command)
             response = self.process_command(command)
             print(response)
-            logging.debug(response)
+            logging.info(response)
 
 if __name__ == "__main__":
     game = AdventureGame()
