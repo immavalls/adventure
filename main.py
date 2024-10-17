@@ -289,13 +289,13 @@ class AdventureGame:
 
     def here(self):
         output = f"{self.locations[self.current_location]['description']}\n{self.list_actions()}"
-        print(output)
         logging.info(output)
+        return output
 
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
-        logging.info("play: Welcome to your text adventure! Type 'quit' to exit.")
-        self.here()
+        logging.info("Welcome to your text adventure! Type 'quit' to exit.")
+        print(self.here())
         while self.game_active:
             command = input(">>> ")
             logging.info("Action: " + command)
