@@ -79,7 +79,7 @@ class AdventureGame:
                     "cool forge": {
                         "message": "You pour water on the forge. The coals sizzle.",
                         "effect": self.cool_forge,
-                        "pre_requisite": self.is_sword_requested
+                        "pre_requisite": self.is_forge_heating
                     },
                     "heat forge": {
                         "message": "You add more coal to the forge, increasing its heat.",
@@ -97,7 +97,7 @@ class AdventureGame:
             "town": {
                 "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
                 "actions": {
-                    "blacksmith": {"next_location": "blacksmith"},
+                    "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive},
                     "mysterious man": {"next_location": "wizard", "pre_requisite": self.check_inventory},
                     "quest giver": {"next_location": "quest"},
                     "chapel": {"next_location": "chapel"}
@@ -127,6 +127,9 @@ class AdventureGame:
                 }
             }
         }
+    
+    def is_blacksmith_alive(self):
+        return not self.blacksmith_burned_down
     
     def start_heat_forge_thread(self):
         def increase_heat_loop():
@@ -173,14 +176,20 @@ class AdventureGame:
             return "You already have a sword. You don't need another one."
         
         if self.failed_sword_attempts > 0 and self.failed_sword_attempts < 3:
-            print("The blacksmith looks at you with disappointment. He says, 'Be more careful this time! If the forge gets too hot, the sword will melt.'")
+            self.sword_requested = True
+            if self.is_heating_forge:
+                logging.warning("You requested another sword, but the forge is still hot!")
+            return "The blacksmith looks at you with disappointment. He says, 'Fine, but be more careful this time! If the forge gets too hot, the sword will melt.'"
         elif self.failed_sword_attempts >= 2:
-            logging.warning("The blacksmith refuses to forge you another sword. You have wasted too much of his time.")
+            logging.error("The blacksmith refuses to forge you another sword. You have wasted too much of his time.")
             return "The blacksmith refuses to forge you another sword. You have wasted too much of his time."
         
         self.sword_requested = True
         return "The blacksmith agrees to forge you a sword. It will take some time and the forge needs to be heated to the correct temperature however."
 
+    def is_forge_heating(self):
+        return self.is_heating_forge
+    
     def is_sword_requested(self):
         return self.sword_requested
     
@@ -209,11 +218,11 @@ class AdventureGame:
             return "The priest looks at your empty hands. You feel a little embarrassed."
 
     def check_sword(self):
-        if self.heat >= 30 and self.heat < 50:
+        if self.heat >= 20 and self.heat <= 40:
             self.sword_requested = False
             self.has_sword = True
             return "The sword is ready. You take it from the blacksmith."
-        elif self.heat >= 50:
+        elif self.heat >= 41:
             self.sword_requested = False
             self.failed_sword_attempts += 1
             return "The sword has completely melted! The blacksmith looks at you with disappointment."
