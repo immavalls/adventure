@@ -1,48 +1,97 @@
+---
+title: Quest World
+menuTitle: Quest World
+description: A text-based adventure game with an observability twist
+weight: 600
+killercoda:
+  title: Quest World
+  description: A text-based adventure game with an observability twist
+  details:
+      intro:
+         foreground: docker-compose-update.sh
+  backend:
+    backend:
+    imageid: ubuntu
+---
+<!-- INTERACTIVE page intro.md START -->
 # Quest World
 
+<!-- INTERACTIVE ignore START -->
+
 <div align="center">
-<img src="./img/logo.png" alt="Quest" width="200"/>
+<img src="https://raw.githubusercontent.com/grafana/adventure/main/img/logo.png" alt="Quest" width="200"/>
 </div>
+
+<!-- INTERACTIVE ignore END -->
+
+Quest World is a text-based adventure game with an observability twist. In this game, you'll embark on a journey through a mystical world, interacting with characters, exploring locations, and making choices that shape your destiny. The game is designed to teach you about observability concepts while you embark on an exciting quest.
+
+<!-- INTERACTIVE ignore START -->
+## Sanbox Environment
+
+You can play Quest World in a sandbox environment. The online VM is pre-configured with all the necessary components to run the game. Click the button below to launch the VM and start playing.
+
+<div align="center">
+  <a href="https://example.com">
+    <img src="https://raw.githubusercontent.com/grafana/adventure/main/img/launch.png" alt="Quest" width="200"/>
+  </a>
+</div>
+<!-- INTERACTIVE ignore END -->
+
+
+<!-- INTERACTIVE page intro.md END -->
+
+<!-- INTERACTIVE page step1.md START -->
 
 ## Installation
 
 1. Clone the repository
 
-```bash
-git clone https://github.com/grafana/adventure.git
-```
+   ```bash
+   git clone https://github.com/grafana/adventure.git
+   ```
 
-2. Spin up the Observability Stack using Docker Compose
+1. Navigate to the `adventure` directory
 
-```bash
-docker-compose up -d
-```
+   ```bash
+   cd adventure
+   ```
+
+1. Spin up the Observability Stack using Docker Compose
+
+   ```bash
+   docker compose up -d
+   ```
 
 Quest World runs as a python application our recommended way to install it is to use a virtual environment.
 
 1. Create a virtual environment
 
-```bash
-python3 -m venv .venv
-```
+   ```bash
+   python3 -m venv .venv
+   ```
 
 2. Activate the virtual environment
 
-```bash
-source .venv/bin/activate
-```
+   ```bash
+   source .venv/bin/activate
+   ```
 
 3. Install the required dependencies
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 4. Run the application
 
-```bash
-python main.py
-```
+   ```bash
+   python main.py
+   ```
+
+<!-- INTERACTIVE page step1.md END -->
+
+<!-- INTERACTIVE page step2.md START -->
 
 ## Gameplay Instructions
 
@@ -120,7 +169,10 @@ Some universal commands include:
    - Go to the `chapel` and `look at sword` to interact with the priest.
    - The priest can bless your sword, especially if it's been cursed.
 
+<!-- INTERACTIVE page step2.md END -->
+
+<!-- INTERACTIVE page finish.md START -->
+
 Remember, the game is dynamic, and your choices can lead to different outcomes. Enjoy the adventure!
 
-
-
+<!-- INTERACTIVE page finish.md END -->
