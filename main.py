@@ -1,6 +1,9 @@
 from otel import CustomLogFW, CustomMetrics
 from opentelemetry import metrics
+import threading
+import time
 import logging
+import sys
 
 class AdventureGame:
     def __init__(self):
@@ -29,13 +32,18 @@ class AdventureGame:
 
         self.game_active = True
         self.current_location = "start"
-        self.heat = 10  # Example variable to track heat at the blacksmith
+        self.is_heating_forge = False
+        self.blacksmith_burned_down = False
+        self.heat = 0  # Track heat at the blacksmith forge
         self.sword_requested = False  # Track if the blacksmith has been asked to forge a sword
+        self.failed_sword_attempts = 0
         self.has_sword = False # Track if the sword has been forged
         self.has_evil_sword = False # Track if the sword has been enchanted by the evil wizard
         self.has_holy_sword = False # Track if the sword has been enchanted by the chapel priest
         self.quest_accepted = False # Track if the quest has been accepted
         self.priest_alive = True
+
+        self.start_heat_forge_thread()
 
         self.locations = {
             "start": {
@@ -70,12 +78,12 @@ class AdventureGame:
                     },
                     "cool forge": {
                         "message": "You pour water on the forge. The coals sizzle.",
-                        "effect": self.reduce_heat,
-                        "pre_requisite": self.is_sword_requested
+                        "effect": self.cool_forge,
+                        "pre_requisite": self.is_forge_heating
                     },
                     "heat forge": {
                         "message": "You add more coal to the forge, increasing its heat.",
-                        "effect": self.increase_heat,
+                        "effect": self.heat_forge,
                         "pre_requisite": self.is_sword_requested
                     },
                     "check sword": {
@@ -89,14 +97,14 @@ class AdventureGame:
             "town": {
                 "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
                 "actions": {
-                    "blacksmith": {"next_location": "blacksmith"},
+                    "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive},
                     "mysterious man": {"next_location": "wizard", "pre_requisite": self.check_inventory},
                     "quest giver": {"next_location": "quest"},
                     "chapel": {"next_location": "chapel"}
                 }
             },
             "wizard": {
-                "description": "You meat a mysterious wizard. He offers to enhance your sword with magic.",
+                "description": "You meet a mysterious wizard. He offers to enhance your sword with magic.",
                 "actions": {
                     "accept his offer": {"message": "A great choice indeed. Your sword is now enchanted with great power.", "effect": self.evil_wizard},
                     "decline his offer": {"message": "You will not get another chance. ACCEPT MY OFFER!"},
@@ -120,6 +128,31 @@ class AdventureGame:
             }
         }
     
+    def is_blacksmith_alive(self):
+        return not self.blacksmith_burned_down
+    
+    def start_heat_forge_thread(self):
+        def increase_heat_loop():
+            while self.game_active:
+                time.sleep(1)
+                self.increase_heat_periodically()
+        
+        thread = threading.Thread(target=increase_heat_loop)
+        thread.daemon = True
+        thread.start()
+
+    def increase_heat_periodically(self):
+        if self.is_heating_forge:
+            self.heat += 1
+            if self.heat >= 100 and not self.blacksmith_burned_down:
+                self.blacksmith_burned_down = True
+                self.is_heating_forge = False
+                logging.warning("The forge has overheated and the blacksmith's shop has burned to the ground!")
+                if self.current_location == "blacksmith":
+                    self.game_active = False
+                    logging.error("You have died in the fire...")
+                    sys.exit()
+    
     def observe_forge_heat(self, observer):
         return [metrics.Observation(value=self.heat, attributes={"location": "blacksmith"})]
     
@@ -129,23 +162,34 @@ class AdventureGame:
             sword_count = 1
         return [metrics.Observation(value=sword_count, attributes={})]
 
-    def reduce_heat(self):
-        self.heat -= 5
-        #self.forge_heat_gauge.set(self.heat)
-        return f"The heat of the forge is now {self.heat}."
+    def cool_forge(self):
+        self.heat = 0
+        self.is_heating_forge = False
+        return f"You throw a bucket of water over the forge. The coals sizzle and the forge cools down completely."
 
-    def increase_heat(self):
-        self.heat += 10
-        #self.forge_heat_gauge.set(self.heat)
-        return f"The heat of the forge is now {self.heat}."
+    def heat_forge(self):
+        self.is_heating_forge = True
+        return f"You fire up the forge and it begins heating up. You should wait a while before checking on the sword."
 
     def request_sword(self):
         if self.has_sword:
             return "You already have a sword. You don't need another one."
         
+        if self.failed_sword_attempts > 0 and self.failed_sword_attempts < 3:
+            self.sword_requested = True
+            if self.is_heating_forge:
+                logging.warning("You requested another sword, but the forge is still hot!")
+            return "The blacksmith looks at you with disappointment. He says, 'Fine, but be more careful this time! If the forge gets too hot, the sword will melt.'"
+        elif self.failed_sword_attempts >= 2:
+            logging.error("The blacksmith refuses to forge you another sword. You have wasted too much of his time.")
+            return "The blacksmith refuses to forge you another sword. You have wasted too much of his time."
+        
         self.sword_requested = True
         return "The blacksmith agrees to forge you a sword. It will take some time and the forge needs to be heated to the correct temperature however."
 
+    def is_forge_heating(self):
+        return self.is_heating_forge
+    
     def is_sword_requested(self):
         return self.sword_requested
     
@@ -159,9 +203,13 @@ class AdventureGame:
         return "You should continue north you cheater."
     
     def priest(self):
-        if self.has_sword:
+        if self.has_holy_sword:
+            return "I have already blessed your sword child, go now and use it well."
+        
+        if self.has_sword and not self.has_evil_sword:
             self.has_holy_sword = True
             return "The priest blesses your sword. You feel a warm glow."
+        
         if self.has_evil_sword:
             self.has_evil_sword = False
             self.has_holy_sword = True
@@ -172,21 +220,21 @@ class AdventureGame:
             return "The priest looks at your sword with fear. My child, this sword is cursed. I will transfer the curse to me."
         else:
             return "The priest looks at your empty hands. You feel a little embarrassed."
-    
 
     def check_sword(self):
-        if self.heat >= 25 and self.heat < 30:
+        if self.heat >= 20 and self.heat <= 40:
             self.sword_requested = False
             self.has_sword = True
             return "The sword is ready. You take it from the blacksmith."
-        elif self.heat >= 30:
-            return "The sword is almost ready, but it's slightly too hot. You need to cool the forge down a bit."
+        elif self.heat >= 41:
+            self.sword_requested = False
+            self.failed_sword_attempts += 1
+            return "The sword has completely melted! The blacksmith looks at you with disappointment."
         else:
-            return "The sword is not ready yet. The forge is not hot enough."
+            return "The forge is not hot enough yet. The blacksmith tells you to wait."
     
     # Evil wizard scenario
     def evil_wizard(self):
-        self.has_sword = False
         self.has_evil_sword = True
 
         logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
@@ -210,12 +258,14 @@ class AdventureGame:
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
-        return f"Available actions: {', '.join(actions)}"
+        return f"Available actions: {', '.join(actions)}, look around"
 
     def process_command(self, command):
         if command.lower() in ["quit", "exit"]:
             self.game_active = False
             return "You have ended your adventure."
+        elif command.lower() in ['look around', 'here']:
+            return self.here()
         elif command.lower() == "list actions":
             return self.list_actions()
         
@@ -240,15 +290,21 @@ class AdventureGame:
         else:
             return "I don't understand that command."
 
+    def here(self):
+        output = f"{self.locations[self.current_location]['description']}\n{self.list_actions()}"
+        logging.info(output)
+        return output
+
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
-        logging.info("play: Welcome to your text adventure! Type 'quit' to exit.")
-        print(f"{self.locations[self.current_location]['description']}\n{self.list_actions()}")
+        logging.info("Welcome to your text adventure! Type 'quit' to exit.")
+        print(self.here())
         while self.game_active:
             command = input(">>> ")
+            logging.info("Action: " + command)
             response = self.process_command(command)
             print(response)
-            logging.debug(response)
+            logging.info(response)
 
 if __name__ == "__main__":
     game = AdventureGame()
