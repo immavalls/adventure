@@ -234,7 +234,7 @@ class AdventureGame:
         return self.sword_requested
     
     def check_inventory(self):
-        return self.has_sword or self.has_holy_sword
+        return self.has_sword or self.has_holy_sword or self.has_evil_sword
 
     def cheat(self):
         self.has_sword = True
