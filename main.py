@@ -267,7 +267,7 @@ class AdventureGame:
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
-        return f"Available actions: {Colors.RED}{f"{Colors.RESET}, {Colors.RED}".join(actions)}{Colors.RESET}, {Colors.RED}look around{Colors.RESET}"
+        return f"Available actions: {Colors.MAGENTA}{f"{Colors.RESET}, {Colors.MAGENTA}".join(actions)}{Colors.RESET}, {Colors.MAGENTA}look around{Colors.RESET}"
 
     def process_command(self, command):
         if command.lower() in ["quit", "exit"]:
@@ -291,23 +291,23 @@ class AdventureGame:
                     return "You can't do that right now."
                 else:
                     if "effect" in action:
-                        return f"{Colors.BLUE}{action["message"]}\n{action["effect"]()}{Colors.RESET}\n{self.list_actions()}"
+                        return f"{Colors.GREEN}{action["message"]}\n{action["effect"]()}{Colors.RESET}\n{self.list_actions()}"
                     else:
-                        return f"{Colors.BLUE}{action["message"]}{Colors.RESET}\n{self.list_actions()}"
+                        return f"{Colors.GREEN}{action["message"]}{Colors.RESET}\n{self.list_actions()}"
             else:
                 return "You can't do that right now."
         else:
             return "I don't understand that command."
 
     def here(self):
-        output = f"{Colors.BLUE}{self.locations[self.current_location]['description']}{Colors.RESET}\n{self.list_actions()}"
+        output = f"{Colors.GREEN}{self.locations[self.current_location]['description']}{Colors.RESET}\n{self.list_actions()}"
         logging.info(output)
         return output
 
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
         logging.info("Welcome to your text adventure! Type 'quit' to exit.")
-        print(f"{Colors.BLUE}{self.here()}{Colors.RESET}")
+        print(f"{Colors.GREEN}{self.here()}{Colors.RESET}")
         while self.game_active:
             command = input("> ")
             logging.info("Action: " + command)
