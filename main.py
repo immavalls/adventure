@@ -113,6 +113,7 @@ class AdventureGame:
                 "actions": {
                     "accept his offer": {"message": "A great choice indeed. Your sword is now enchanted with great power.", "effect": self.evil_wizard},
                     "decline his offer": {"message": "You will not get another chance. ACCEPT MY OFFER!"},
+                    "kill him": {"message": "You attempt to kill the wizard.", "pre_requisite": self.is_quest_accepted, "effect": self.kill_wizard},
                     "go to town": {"next_location": "town"}
                 }
             },
@@ -210,6 +211,9 @@ class AdventureGame:
         self.sword_requested = True
         return "The blacksmith agrees to forge you a sword. It will take some time and the forge needs to be heated to the correct temperature however."
 
+    def is_quest_accepted(self):
+        return self.quest_accepted
+    
     def is_forge_heating(self):
         return self.is_heating_forge
     
@@ -217,7 +221,7 @@ class AdventureGame:
         return self.sword_requested
     
     def check_inventory(self):
-        return self.has_sword
+        return self.has_sword or self.has_holy_sword
 
     def cheat(self):
         self.has_sword = True
@@ -225,6 +229,22 @@ class AdventureGame:
         metrics.Observation(value=sword_count, attributes={})
         return "You should continue north you cheater."
     
+    def kill_wizard(self):
+        if self.has_holy_sword:
+            self.current_location = "town"
+            self.quest_accepted = False
+            return "You strike the wizard down with your holy sword. The town cheers for you."
+        
+        if self.has_evil_sword:
+            self.current_location = "town"
+            logging.critical("Your sword falters as you try to strike the wizard down. The wizard laughs as you fall to the ground.")
+            return "The wizard laughs as you strike him down. The sword was cursed. You have failed."
+        
+        if self.has_sword:
+            self.current_location = "town"
+            logging.warning("Your sword is not powerful enough to defeat the wizard. You fall to the ground.")
+            return "You try to strike the wizard down but your sword is not powerful enough. You have failed."
+
     def priest(self):
         if self.has_holy_sword:
             return "I have already blessed your sword child, go now and use it well."
@@ -279,7 +299,8 @@ class AdventureGame:
             self.quest_accepted = True
             return "Wow! You have such a powerful sword. I will give you a quest to defeat the evil wizard."
         elif self.has_sword:
-            logging.warning("Your sword is not powerful enough to defeat the wizard. You should go to the chapel.")
+            self.quest_accepted = True
+            logging.warning("Ok, if you're sure... But it seems your sword may not be powerful enough to defeat the wizard.")
             return "The quest giver looks at your sword. You should go to the chapel."
         else:
             return "You don't have a sword. The quest giver looks at you with disappointment."
