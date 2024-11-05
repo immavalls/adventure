@@ -68,26 +68,10 @@ class AdventureGame:
 
         self.locations = {
             "start": {
-                "description": "You are at the beginning of your adventure. There's a path leading north.",
+                "description": "You are at the beginning of your adventure. There's a path leading north towards a town.",
                 "actions": {
-                    "go north": {"next_location": "forest"},
-                    "cheat": {"message": "You cheat and get a sword. You feel guilty", "effect": self.cheat}
-                }
-            },
-            "forest": {
-                "description": "You are in a dark forest. The trees are thick and you can barely see sunlight. Paths lead north, south, and to a small town.",
-                "actions": {
-                    "go north": {"next_location": "cave"},
-                    "go south": {"next_location": "start"},
                     "go to town": {"next_location": "town"},
-                    "pick herb": {"message": "You pick some useful herbs from the forest floor."}
-                }
-            },
-            "cave": {
-                "description": "You have entered a damp cave. The walls are covered with moss and there's a strange noise echoing. Paths lead south and east.",
-                "actions": {
-                    "go south": {"next_location": "forest"},
-                    "explore": {"message": "You find an old chest hidden behind some rocks."}
+                    "cheat": {"message": "You cheat and get a sword. You feel guilty", "effect": self.cheat}
                 }
             },
             "blacksmith": {
@@ -281,7 +265,7 @@ class AdventureGame:
         self.has_sword = False
         self.has_holy_sword = False
 
-        logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
+        # logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
         logging.error("The evil wizard has enchanted your sword with dark magic. You feel a chill run down your spine. This is a warning...")
         return "You feel funny but powerful. Maybe I should accept a quest."
     
