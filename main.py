@@ -5,6 +5,15 @@ import time
 import logging
 import sys
 
+class Colors:
+    RESET = "\033[0m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+
 class AdventureGame:
     def __init__(self):
         logFW = CustomLogFW(service_name='adventure')
@@ -210,7 +219,7 @@ class AdventureGame:
             if self.is_heating_forge:
                 logging.warning("You requested another sword, but the forge is still hot!")
             return "The blacksmith looks at you with disappointment. He says, 'Fine, but be more careful this time! If the forge gets too hot, the sword will melt.'"
-        elif self.failed_sword_attempts >= 2:
+        elif self.failed_sword_attempts >= 3:
             logging.error("The blacksmith refuses to forge you another sword. You have wasted too much of his time.")
             return "The blacksmith refuses to forge you another sword. You have wasted too much of his time."
         
@@ -293,7 +302,7 @@ class AdventureGame:
 
     def list_actions(self):
         actions = self.locations[self.current_location].get("actions", {}).keys()
-        return f"Available actions: {', '.join(actions)}, look around"
+        return f"Available actions: {Colors.MAGENTA}{f"{Colors.RESET}, {Colors.MAGENTA}".join(actions)}{Colors.RESET}, {Colors.MAGENTA}look around{Colors.RESET}"
 
     def process_command(self, command):
         if command.lower() in ["quit", "exit"]:
@@ -311,34 +320,34 @@ class AdventureGame:
                 return "You can't do that right now."
             if "next_location" in action:
                 self.current_location = action["next_location"]
-                return f"{self.locations[self.current_location]['description']}\n{self.list_actions()}"
+                return self.here()
             elif "message" in action:
                 if "pre_requisite" in action and not action["pre_requisite"]():
                     return "You can't do that right now."
                 else:
                     if "effect" in action:
-                        return f"{action["message"]}\n{action["effect"]()}"
+                        return f"{Colors.GREEN}{action["message"]}\n{action["effect"]()}{Colors.RESET}\n{self.list_actions()}"
                     else:
-                        return action["message"]
+                        return f"{Colors.GREEN}{action["message"]}{Colors.RESET}\n{self.list_actions()}"
             else:
                 return "You can't do that right now."
         else:
             return "I don't understand that command."
 
     def here(self):
-        output = f"{self.locations[self.current_location]['description']}\n{self.list_actions()}"
+        output = f"{Colors.GREEN}{self.locations[self.current_location]['description']}{Colors.RESET}\n{self.list_actions()}"
         logging.info(output)
         return output
 
     def play(self):
         print("Welcome to your text adventure! Type 'quit' to exit.")
         logging.info("Welcome to your text adventure! Type 'quit' to exit.")
-        print(self.here())
+        print(f"{Colors.GREEN}{self.here()}{Colors.RESET}")
         while self.game_active:
-            command = input(">>> ")
+            command = input("> ")
             logging.info("Action: " + command)
             response = self.process_command(command)
-            print(response)
+            print(f"{response}")
             logging.info(response)
 
 if __name__ == "__main__":

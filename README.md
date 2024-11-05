@@ -1,3 +1,4 @@
+<!--
 ---
 title: Quest World
 menuTitle: Quest World
@@ -13,6 +14,7 @@ killercoda:
     backend:
     imageid: ubuntu
 ---
+--->
 <!-- INTERACTIVE page intro.md START -->
 # Quest World
 
