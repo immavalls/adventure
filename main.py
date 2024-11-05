@@ -180,7 +180,7 @@ class AdventureGame:
             if self.is_heating_forge:
                 logging.warning("You requested another sword, but the forge is still hot!")
             return "The blacksmith looks at you with disappointment. He says, 'Fine, but be more careful this time! If the forge gets too hot, the sword will melt.'"
-        elif self.failed_sword_attempts >= 2:
+        elif self.failed_sword_attempts >= 3:
             logging.error("The blacksmith refuses to forge you another sword. You have wasted too much of his time.")
             return "The blacksmith refuses to forge you another sword. You have wasted too much of his time."
         
