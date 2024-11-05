@@ -79,7 +79,8 @@ class AdventureGame:
                 "actions": {
                     "request sword": {
                         "message": "You ask the blacksmith to forge you a new sword.",
-                        "effect": self.request_sword
+                        "effect": self.request_sword,
+                        "pre_requisite": self.is_blacksmith_alive
                     },
                     "cool forge": {
                         "message": "You pour water on the forge. The coals sizzle.",
@@ -97,22 +98,31 @@ class AdventureGame:
                         "pre_requisite": self.is_sword_requested
                     },
                     "go to town": {"next_location": "town"}
-                }
+                },
+                "pre_requisite": self.is_blacksmith_alive
             },
             "town": {
                 "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
                 "actions": {
                     "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive},
-                    "mysterious man": {"next_location": "wizard", "pre_requisite": self.check_inventory},
+                    "rebuild blacksmith": {"message": "You help the town rebuild the blacksmith.", "effect": self.rebuild_blacksmith, "pre_requisite": self.is_blacksmith_dead},
+                    "mysterious man": {"next_location": "mysterious man", "pre_requisite": self.check_inventory},
+                    "wizard": {"next_location": "wizard", "pre_requisite": self.check_inventory},
                     "quest giver": {"next_location": "quest"},
                     "chapel": {"next_location": "chapel"}
                 }
             },
-            "wizard": {
-                "description": "You meet a mysterious wizard. He offers to enhance your sword with magic.",
+            "mysterious man": {
+                "description": "You meet a mysterious man. He offers to enhance your sword with magic.",
                 "actions": {
                     "accept his offer": {"message": "A great choice indeed. Your sword is now enchanted with great power.", "effect": self.evil_wizard},
                     "decline his offer": {"message": "You will not get another chance. ACCEPT MY OFFER!"},
+                    "go to town": {"next_location": "town"}
+                }
+            },
+            "wizard": {
+                "description": "You meet a wizard. He yells 'Are you here to kill me?!'",
+                "actions": {
                     "kill him": {"message": "You attempt to kill the wizard.", "pre_requisite": self.is_quest_accepted, "effect": self.kill_wizard},
                     "go to town": {"next_location": "town"}
                 }
@@ -137,6 +147,14 @@ class AdventureGame:
     def is_blacksmith_alive(self):
         return not self.blacksmith_burned_down
     
+    def is_blacksmith_dead(self):
+        return self.blacksmith_burned_down
+    
+    def rebuild_blacksmith(self):
+        self.blacksmith_burned_down = False
+        self.cool_forge()
+        return "You help the town rebuild the blacksmith. The blacksmith is grateful."
+    
     def start_heat_forge_thread(self):
         def increase_heat_loop():
             while self.game_active:
@@ -150,14 +168,9 @@ class AdventureGame:
     def increase_heat_periodically(self):
         if self.is_heating_forge:
             self.heat += 1
-            if self.heat >= 100 and not self.blacksmith_burned_down:
+            if self.heat >= 70 and not self.blacksmith_burned_down:
                 self.blacksmith_burned_down = True
                 self.is_heating_forge = False
-                logging.warning("The forge has overheated and the blacksmith's shop has burned to the ground!")
-                if self.current_location == "blacksmith":
-                    self.game_active = False
-                    logging.error("You have died in the fire...")
-                    sys.exit()
     
     def observe_forge_heat(self, observer):
         return [metrics.Observation(value=self.heat, attributes={"location": "blacksmith"})]
@@ -242,8 +255,9 @@ class AdventureGame:
         
         if self.has_sword:
             self.current_location = "town"
-            logging.warning("Your sword is not powerful enough to defeat the wizard. You fall to the ground.")
-            return "You try to strike the wizard down but your sword is not powerful enough. You have failed."
+            logging.warning("Your sword is not powerful enough to defeat the wizard. Your sword shatters, you should probably get a new one.")
+            self.has_sword = False
+            return "You try to strike the wizard down but your sword is not powerful enough."
 
     def priest(self):
         if self.has_holy_sword:
@@ -268,7 +282,7 @@ class AdventureGame:
             return "The priest looks at your empty hands. You feel a little embarrassed."
 
     def check_sword(self):
-        if self.heat >= 20 and self.heat <= 40:
+        if self.heat >= 10 and self.heat <= 40:
             self.sword_requested = False
             self.has_sword = True
             return "The sword is ready. You take it from the blacksmith."
@@ -301,7 +315,7 @@ class AdventureGame:
         elif self.has_sword:
             self.quest_accepted = True
             logging.warning("Ok, if you're sure... But it seems your sword may not be powerful enough to defeat the wizard.")
-            return "The quest giver looks at your sword. You should go to the chapel."
+            return "The quest giver tentivelly gives you a quest to defeat the evil wizard."
         else:
             return "You don't have a sword. The quest giver looks at you with disappointment."
 
