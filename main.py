@@ -30,6 +30,18 @@ class AdventureGame:
             callbacks=[self.observe_swords]
         )
 
+        self.holy_sword_gauge = meter.create_observable_gauge(
+            name="holy_sword",
+            description="The number of holy swords",
+            callbacks=[self.observe_holy_swords]
+        )
+
+        self.evil_sword_gauge = meter.create_observable_gauge(
+            name="evil_sword",
+            description="The number of evil swords",
+            callbacks=[self.observe_evil_swords]
+        )
+
         self.game_active = True
         self.current_location = "start"
         self.is_heating_forge = False
@@ -160,6 +172,24 @@ class AdventureGame:
         sword_count = 0
         if self.has_sword:
             sword_count = 1
+        elif self.has_evil_sword or self.has_holy_sword:
+            sword_count = 0
+        return [metrics.Observation(value=sword_count, attributes={})]
+    
+    def observe_holy_swords(self, observer):
+        sword_count = 0
+        if self.has_holy_sword:
+            sword_count = 1
+        elif self.has_evil_sword or self.has_sword: 
+            sword_count = 0
+        return [metrics.Observation(value=sword_count, attributes={})]
+    
+    def observe_evil_swords(self, observer):
+        sword_count = 0
+        if self.has_evil_sword:
+            sword_count = 1
+        elif self.has_holy_sword or self.has_sword:
+            sword_count = 0
         return [metrics.Observation(value=sword_count, attributes={})]
 
     def cool_forge(self):
@@ -208,11 +238,14 @@ class AdventureGame:
         
         if self.has_sword and not self.has_evil_sword:
             self.has_holy_sword = True
+            self.has_evil_sword = False
+            self.has_sword = False
             return "The priest blesses your sword. You feel a warm glow."
         
         if self.has_evil_sword:
             self.has_evil_sword = False
             self.has_holy_sword = True
+            self.has_sword = False
             self.priest_alive = False
 
             logging.warning("The priest transfers the curse from the sword to himself. He falls to the ground.")
@@ -236,6 +269,8 @@ class AdventureGame:
     # Evil wizard scenario
     def evil_wizard(self):
         self.has_evil_sword = True
+        self.has_sword = False
+        self.has_holy_sword = False
 
         logging.warning("The evil wizard laughs; Ha! little does he know the sword is now cursed. He will never defeat me now!")
         logging.error("The evil wizard has enchanted your sword with dark magic. You feel a chill run down your spine. This is a warning...")

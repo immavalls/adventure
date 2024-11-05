@@ -23,7 +23,7 @@ services:
     networks:
       - adventure
   loki:
-    image: grafana/loki:main
+    image: grafana/loki:3.2.0
     ports:
       - "3100:3100"
     volumes:
