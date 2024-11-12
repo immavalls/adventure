@@ -75,7 +75,7 @@ class AdventureGame:
                 }
             },
             "blacksmith": {
-                "description": "You are at the blacksmith's forge. The heat from the forge is intense. The blacksmith is busy working.",
+                "description": "You are at the blacksmith's forge. The blacksmith is busy working.",
                 "actions": {
                     "request sword": {
                         "message": "You ask the blacksmith to forge you a new sword.",
@@ -168,7 +168,7 @@ class AdventureGame:
     def increase_heat_periodically(self):
         if self.is_heating_forge:
             self.heat += 1
-            if self.heat >= 70 and not self.blacksmith_burned_down:
+            if self.heat >= 50 and not self.blacksmith_burned_down:
                 self.blacksmith_burned_down = True
                 self.is_heating_forge = False
     
@@ -282,11 +282,11 @@ class AdventureGame:
             return "The priest looks at your empty hands. You feel a little embarrassed."
 
     def check_sword(self):
-        if self.heat >= 10 and self.heat <= 40:
+        if self.heat >= 10 and self.heat <= 20:
             self.sword_requested = False
             self.has_sword = True
             return "The sword is ready. You take it from the blacksmith."
-        elif self.heat >= 41:
+        elif self.heat >= 21:
             self.sword_requested = False
             self.failed_sword_attempts += 1
             return "The sword has completely melted! The blacksmith looks at you with disappointment."
