@@ -12,4 +12,19 @@ datasources:
     prometheusVersion: 2.50.0
     cacheLevel: 'None'
     timeInterval: 3s
+- name: tempo
+  type: tempo
+  url: "http://tempo:3200"
+  jsonData:
+    nodeGraph: 
+      enabled: true
+    serviceMap:
+      datasourceUid: 'prometheus'
+    tracesToLogsV2:
+      datasourceUid: 'loki'
+    tracesToMetrics:
+      datasourceUid: 'prometheus'
+
+
+
 

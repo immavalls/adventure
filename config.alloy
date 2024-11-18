@@ -5,6 +5,7 @@ otelcol.receiver.otlp "default" {
   output {
     metrics = [otelcol.exporter.otlphttp.metrics.input]
     logs    = [otelcol.exporter.otlphttp.logs.input]
+    traces = [otelcol.exporter.otlphttp.traces.input]
   }
 }
 
@@ -19,6 +20,12 @@ otelcol.exporter.otlphttp "metrics" {
   client {
     endpoint = "http://prometheus:9090/api/v1/otlp"
   }
+}
+
+otelcol.exporter.otlphttp "traces" {
+    client {
+        endpoint = "http://tempo:4318"
+    }
 }
 
 livedebugging {
