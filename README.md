@@ -29,7 +29,7 @@ killercoda:
 Quest World is a text-based adventure game with an observability twist. In this game, you'll embark on a journey through a mystical world, interacting with characters, exploring locations, and making choices that shape your destiny. The game is designed to teach you about observability concepts while you embark on an exciting quest.
 
 <!-- INTERACTIVE ignore START -->
-## Sanbox Environment
+## Sandbox Environment
 
 You can play Quest World in a sandbox environment. The online VM is pre-configured with all the necessary components to run the game. Click the button below to launch the VM and start playing.
 
