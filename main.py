@@ -70,15 +70,38 @@ class AdventureGame:
         self.has_holy_sword = False # Track if the sword has been enchanted by the chapel priest
         self.quest_accepted = False # Track if the quest has been accepted
         self.priest_alive = True
+        self.has_box = False
 
         self.start_heat_forge_thread()
 
         self.locations = {
             "start": {
-                "description": "You are at the beginning of your adventure. There's a path leading north towards a town.",
+                "description": "You are at the beginning of your adventure. There's a path leading north towards a town and a path leading east towards a forest.",
                 "actions": {
                     "go to town": {"next_location": "town"},
+                    "go to forest": {"next_location": "forest"},
                     "cheat": {"message": "You cheat and get a sword. You feel guilty", "effect": self.cheat}
+                }
+            },
+            "forest": {
+                "description": "You are in a dark forest. The trees are tall and the air is thick, you can make out a faint trail heading further east.",
+                "actions": {
+                    "go back": {"next_location": "start"},
+                    "go east": {"next_location": "cave"}
+                }
+            },
+            "cave": {
+                "description": "You enter a dark cave at the end of the trail. The air is cold and damp. You see a faint light at the end of the cave.",
+                "actions": {
+                    "go back": {"next_location": "forest"},
+                    "go towards light": {"next_location": "treasure"}
+                }
+            },
+            "treasure": {
+                "description": "You find a treasure chest at the end of the cave. Inside is a small decorative wooden box with no visible way of opening it.",
+                "actions": {
+                    "take the box": {"message": "You take the box and place it in your pocket.", "effect": self.take_box, "pre_requisite": self.box_still_in_chest},
+                    "exit the cave": {"message": "You retrace your steps and go back to where you first started your adventure", "next_location": "start"}
                 }
             },
             "blacksmith": {
@@ -111,7 +134,7 @@ class AdventureGame:
             "town": {
                 "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
                 "actions": {
-                    "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive},
+                    "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive, "effect": self.enter_blacksmith},
                     "rebuild blacksmith": {"message": "You help the town rebuild the blacksmith.", "effect": self.rebuild_blacksmith, "pre_requisite": self.is_blacksmith_dead},
                     "mysterious man": {"next_location": "mysterious man", "pre_requisite": self.check_inventory},
                     "wizard": {"next_location": "wizard", "pre_requisite": self.check_inventory},
@@ -151,6 +174,20 @@ class AdventureGame:
             }
         }
     
+    def take_box(self):
+        if self.has_box:
+            return "You already have the box."
+        
+        self.has_box = True
+        return "You hear a slight hum coming from the box as you touch it."
+
+    def box_still_in_chest(self):
+        return not self.has_box
+    
+    def enter_blacksmith(self):
+        if self.has_box:
+            logging.info("As you enter the blacksmith you trip over a small stone slab. You feel lighter somehow.")
+
     def is_blacksmith_alive(self):
         return not self.blacksmith_burned_down
     
@@ -158,6 +195,10 @@ class AdventureGame:
         return self.blacksmith_burned_down
     
     def rebuild_blacksmith(self):
+        if self.has_box:
+            logging.info("While rebuilding the blacksmith, in amongst the ashes you find the burnt remains of the decorative box. Laying beside it is a glowing, unburnt, piece of parchment which reads: 'Congratulations, Adventurer!'. Below it is a long cryptic looking message.")
+            logging.info("U2VuZCB0aGUgcGhyYXNlICJJIGZvdW5kIHRoZSBzZWNyZXQgd2l0aCBvYnNlcnZhYmlsaXR5ISIgdG8gVG9tIEdsZW5uIG9yIEpheSBDbGlmZm9yZCBhdCBodHRwczovL3NsYWNrLmdyYWZhbmEuY29tIGZvciB5b3VyIHJld2FyZC4=")
+        
         self.blacksmith_burned_down = False
         self.cool_forge()
         return "You help the town rebuild the blacksmith. The blacksmith is grateful."
@@ -357,6 +398,8 @@ class AdventureGame:
                 return "You can't do that right now."
             if "next_location" in action:
                 self.current_location = action["next_location"]
+                if "effect" in action:
+                    action["effect"]()
                 return self.here()
             elif "message" in action:
                 if "pre_requisite" in action and not action["pre_requisite"]():
@@ -433,6 +476,7 @@ class AdventureGame:
         self.quest_accepted = False
         self.priest_alive = True
         self.heat = 0  # Reset the forge heat
+        self.has_box = False
 
     # Restart the heat forge thread
         self.start_heat_forge_thread()
