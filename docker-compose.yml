@@ -15,7 +15,7 @@ services:
     networks:
       - adventure
   prometheus:
-    image: prom/prometheus:2.29.7
+    image: prom/prometheus:latest
     ports:
       - 9090:9090
     volumes:
