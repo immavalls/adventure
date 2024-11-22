@@ -15,6 +15,8 @@ killercoda:
     imageid: ubuntu
 ---
 --->
+
+
 <!-- INTERACTIVE page intro.md START -->
 # Quest World
 
@@ -27,6 +29,8 @@ killercoda:
 <!-- INTERACTIVE ignore END -->
 
 Quest World is a text-based adventure game with an observability twist. In this game, you'll embark on a journey through a mystical world, interacting with characters, exploring locations, and making choices that shape your destiny. The game is designed to teach you about observability concepts while you embark on an exciting quest.
+
+Checkout our blog post [here](https://grafana.com/blog/2024/11/20/metrics-logs-traces-and-mayhem-introducing-an-observability-adventure-game-powered-by-grafana-alloy-and-otel/) to learn more about the game.
 
 <!-- INTERACTIVE ignore START -->
 ## Sandbox Environment
