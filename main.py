@@ -76,7 +76,7 @@ class AdventureGame:
 
         self.locations = {
             "start": {
-                "description": "You are at the beginning of your adventure. There's a path leading north towards a town and a path leading east towards a forest.",
+                "description": "You are at the beginning of your adventure. There's a path leading north towards a town, and another path leading east towards a forest.",
                 "actions": {
                     "go to town": {"next_location": "town"},
                     "go to forest": {"next_location": "forest"},
@@ -132,7 +132,7 @@ class AdventureGame:
                 "pre_requisite": self.is_blacksmith_alive
             },
             "town": {
-                "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wondering the streets, a quest giver, and a chapel.",
+                "description": "You are in a bustling town. People are going about their business. You see a blacksmith, a mysterious man wandering the streets, a quest giver, and a chapel.",
                 "actions": {
                     "blacksmith": {"next_location": "blacksmith", "pre_requisite": self.is_blacksmith_alive, "effect": self.enter_blacksmith},
                     "rebuild blacksmith": {"message": "You help the town rebuild the blacksmith.", "effect": self.rebuild_blacksmith, "pre_requisite": self.is_blacksmith_dead},
@@ -196,7 +196,7 @@ class AdventureGame:
     
     def rebuild_blacksmith(self):
         if self.has_box:
-            logging.info("While rebuilding the blacksmith, in amongst the ashes you find the burnt remains of the decorative box. Laying beside it is a glowing, unburnt, piece of parchment which reads: 'Congratulations, Adventurer!'. Below it is a long cryptic looking message.")
+            logging.info("While rebuilding the blacksmith, amongst the ashes you find the burnt remains of the decorative box. Laying beside it is a glowing, unburnt, piece of parchment which reads: 'Congratulations, Adventurer!'. Below it is a long cryptic looking message.")
             logging.info("U2VuZCB0aGUgcGhyYXNlICJJIGZvdW5kIHRoZSBzZWNyZXQgd2l0aCBvYnNlcnZhYmlsaXR5ISIgdG8gVG9tIEdsZW5uIG9yIEpheSBDbGlmZm9yZCBhdCBodHRwczovL3NsYWNrLmdyYWZhbmEuY29tIGZvciB5b3VyIHJld2FyZC4=")
         
         self.blacksmith_burned_down = False
@@ -365,16 +365,16 @@ class AdventureGame:
             current_span.add_event("You killed the quest giver with your evil sword!")
             logging.critical("The sword whispers; I killed them! you will never destroy the wizard with me in your hands! Hahahaha")
             self.current_location = "town"
-            return "The quest giver turns pale. They collapses. Dead! What do I do now?"
+            return "The quest giver turns pale. They collapse. Dead! What do I do now?"
         elif self.has_holy_sword:
             logging.warning("The sword whispers; I will help you defeat the wizard. I am your only hope.")
             self.quest_accepted = True
             return "Wow! You have such a powerful sword. I will give you a quest to defeat the evil wizard."
         elif self.has_sword:
             self.quest_accepted = True
-            current_span.add_event("Hes not really impressed with your sword.")
+            current_span.add_event("He's not really impressed with your sword.")
             logging.warning("Ok, if you're sure... But it seems your sword may not be powerful enough to defeat the wizard.")
-            return "The quest giver tentivelly gives you a quest to defeat the evil wizard."
+            return "The quest giver tentatively gives you a quest to defeat the evil wizard."
         else:
             return "You don't have a sword. The quest giver looks at you with disappointment."
 
