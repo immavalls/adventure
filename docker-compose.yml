@@ -24,7 +24,7 @@ services:
     networks:
       - adventure
   loki:
-    image: grafana/loki:3.2.0
+    image: grafana/loki:3.3.0
     ports:
       - "3100:3100"
     volumes:
@@ -57,8 +57,8 @@ services:
       - "chown"
       - "10001:10001"
       - "/var/tempo"
-    networks:
-      - adventure
+    volumes:
+      - ./tempo-data:/var/tempo
 
   memcached:
     image: memcached:1.6.29
@@ -68,8 +68,6 @@ services:
     environment:
       - MEMCACHED_MAX_MEMORY=64m  # Set the maximum memory usage
       - MEMCACHED_THREADS=4       # Number of threads to use
-    networks:
-      - adventure
 
   tempo:
     image: *tempoImage
