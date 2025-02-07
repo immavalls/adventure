@@ -42,6 +42,23 @@ You can play Quest World in a sandbox environment. The online VM is pre-configur
     <img src="https://raw.githubusercontent.com/grafana/adventure/main/img/launch.png" alt="Quest" width="200"/>
   </a>
 </div>
+
+## Docker Container
+
+You can also run Quest World on your local machine using Docker. Follow the instructions below to get started. Instead of using a python virtual environment, you can run the game in a Docker container.
+
+First build the Docker image:
+```
+docker build -t adventure:latest .
+```
+**Note**: Make sure you are in the top level of the `adventure` directory.
+
+Then run the container:
+
+```bash
+docker run -it --network=adventure_adventure -e SETUP=docker adventure:latest
+```
+
 <!-- INTERACTIVE ignore END -->
 
 

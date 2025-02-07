@@ -1,7 +1,7 @@
 # Import the function to set the global logger provider from the OpenTelemetry logs module.
 from opentelemetry._logs import set_logger_provider
 
-# Import the OTLPLogExporter class from the OpenTelemetry gRPC log exporter module for exporting logs.
+# Import the OTLPLogExporter class from the OpenTelemetry http log exporter module for exporting logs.
 from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 
 # Import LoggerProvider and LoggingHandler classes to create and handle logging with OpenTelemetry.
@@ -30,15 +30,19 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
 
+import os
+
 # Interval in seconds for exporting metrics periodically.
 INTERVAL_SEC = 10
-
 
 
 class CustomTracer:
     def __init__(self):
         # Set up TracerProvider only once globally
-        exporter = OTLPSpanExporter()
+        if os.environ.get("SETUP") == "docker":
+            exporter = OTLPSpanExporter(endpoint="http://alloy:4318/v1/traces")
+        else:
+            exporter = OTLPSpanExporter()
         span_processor = BatchSpanProcessor(span_exporter=exporter)
 
         # Create a singleton TracerProvider if not already configured
@@ -63,7 +67,10 @@ class CustomMetrics:
     def __init__(self, service_name):
         try:
             # Create the metrics exporter to send data to the backend.
-            exporter = OTLPMetricExporter()
+            if os.environ.get("SETUP") == "docker":
+                exporter = OTLPMetricExporter(endpoint="http://alloy:4318/v1/metrics")
+            else:
+                exporter = OTLPMetricExporter()
 
             # Set up a PeriodicExportingMetricReader to export metrics at regular intervals.
             metric_reader = PeriodicExportingMetricReader(exporter, INTERVAL_SEC)
@@ -134,7 +141,11 @@ class CustomLogFW:
         set_logger_provider(self.logger_provider)
 
         # Create an instance of OTLPLogExporter to export logs.
-        exporter = OTLPLogExporter()
+        if os.environ.get("SETUP") == "docker":
+            exporter = OTLPLogExporter(endpoint="http://alloy:4318/v1/logs")
+            print(exporter._endpoint, flush=True)
+        else:
+            exporter = OTLPLogExporter()
 
         # Add a BatchLogRecordProcessor to the logger provider.
         # This processor batches logs before sending them to the backend.
