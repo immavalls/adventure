@@ -8,8 +8,7 @@ services:
       - 4317:4317
     volumes:
       - ./config.alloy:/etc/alloy/config.alloy
-      - ./logs:/tmp/app-logs/
-    command: run --server.http.listen-addr=0.0.0.0:12345 --stability.level=experimental  --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     depends_on:
       - loki
     networks:
@@ -20,11 +19,11 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-otlp-receiver
+    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-otlp-receiver --enable-feature=exemplar-storage
     networks:
       - adventure
   loki:
-    image: grafana/loki:3.3.0
+    image: grafana/loki:3.4.2
     ports:
       - "3100:3100"
     volumes:
@@ -39,7 +38,6 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_BASIC_ENABLED=false
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall
-      - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app,https://storage.googleapis.com/integration-artifacts/grafana-exploretraces-app/grafana-exploretraces-app-latest.zip;grafana-traces-app
     ports:
       - 3000:3000/tcp
     volumes:
@@ -84,7 +82,6 @@ services:
 
 networks:
     adventure:
-
     
 
 

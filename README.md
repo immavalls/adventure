@@ -100,13 +100,19 @@ Quest World runs as a python application our recommended way to install it is to
    source .venv/bin/activate
    ```
 
-3. Install the required dependencies
+3. Upgrade pip
+
+   ```bash
+   pip install --upgrade pip
+   ```
+
+4. Install the required dependencies
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Run the application
+5. Run the application
 
    ```bash
    python main.py
