@@ -33,7 +33,7 @@ Quest World is a text-based adventure game with an observability twist. In this 
 Checkout our blog post [here](https://grafana.com/blog/2024/11/20/metrics-logs-traces-and-mayhem-introducing-an-observability-adventure-game-powered-by-grafana-alloy-and-otel/) to learn more about the game.
 
 <!-- INTERACTIVE ignore START -->
-## Sandbox Environment
+## Run in a Sandbox Environment
 
 You can play Quest World in a sandbox environment. The online VM is pre-configured with all the necessary components to run the game. Click the button below to launch the VM and start playing.
 
@@ -43,20 +43,53 @@ You can play Quest World in a sandbox environment. The online VM is pre-configur
   </a>
 </div>
 
-## Docker Container
+And follow the instructions [here](killercoda-sandbox.md).
 
-You can also run Quest World on your local machine using Docker. Follow the instructions below to get started. Instead of using a python virtual environment, you can run the game in a Docker container.
+## Run with Docker
 
-First build the Docker image:
-```
-docker build -t adventure:latest .
-```
-**Note**: Make sure you are in the top level of the `adventure` directory.
+You can run Quest World on your local machine using Docker. Follow the instructions below to get started. 
 
-Then run the container:
+1. Clone the repository
+
+   ```bash
+   git clone https://github.com/grafana/adventure.git
+   ```
+
+2. Navigate to the `adventure` directory
+
+   ```bash
+   cd adventure
+   ```
+
+3. Spin up the Observability Stack using Docker Compose
+
+   ```bash
+   docker compose up -d
+   ```
+
+Instead of using a [python virtual environment](#installation-with-python), you can run the game in a Docker container with the following steps.
+
+1. First build the Docker image:
+
+   ```bash
+   docker build -t adventure:latest .
+   ```
+   
+   **Note**: Make sure you are in the top level of the `adventure` directory.
+
+1. Run the container:
+
+   ```bash
+   docker run -it --network=adventure_adventure --name adventure -e SETUP=docker adventure:latest
+   ```
+
+Once up, check the [gameplay instructions](#gameplay-instructions)
+
+Once you **finished playing**, to clean up your environment run:
 
 ```bash
-docker run -it --network=adventure_adventure -e SETUP=docker adventure:latest
+docker stop adventure
+docker compose down
 ```
 
 <!-- INTERACTIVE ignore END -->
@@ -66,7 +99,9 @@ docker run -it --network=adventure_adventure -e SETUP=docker adventure:latest
 
 <!-- INTERACTIVE page step1.md START -->
 
-## Installation
+## Installation with Python
+
+If you prefer to use a python virtual environment, follow the instructions below.
 
 1. Clone the repository
 
@@ -74,13 +109,13 @@ docker run -it --network=adventure_adventure -e SETUP=docker adventure:latest
    git clone https://github.com/grafana/adventure.git
    ```
 
-1. Navigate to the `adventure` directory
+2. Navigate to the `adventure` directory
 
    ```bash
    cd adventure
    ```
 
-1. Spin up the Observability Stack using Docker Compose
+3. Spin up the Observability Stack using Docker Compose
 
    ```bash
    docker compose up -d
