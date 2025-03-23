@@ -43,6 +43,8 @@ You can play Quest World in a sandbox environment. The online VM is pre-configur
   </a>
 </div>
 
+And follow the instructions [here](killercoda-sandbox.md).
+
 ## Docker Container
 
 You can also run Quest World on your local machine using Docker. Follow the instructions below to get started. Instead of using a python virtual environment, you can run the game in a Docker container.
