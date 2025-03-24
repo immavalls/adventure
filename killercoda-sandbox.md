@@ -4,7 +4,7 @@ Once you start the sandbox at https://killercoda.com/grafana-labs/course/worksho
 
 ![Kilercoda Setup finished](./img/killercoda-setup.png)
 
-Once you hit the start, instead of `git clone https://github.com/grafana/adventure.git` execute `git clone https://github.com/immavalls/adventure.git` and follow the rest of the setup instructions.
+Once you hit the start, execute `git clone https://github.com/grafana/adventure.git` and follow the rest of the setup instructions.
 
 Once the setup is finished, you can start playing the adventure.
 
