@@ -60,7 +60,14 @@ class AdventureGame:
         )
 
         self.evil_sword_counter.add(0)  # Initialize the evil sword counter to 0
-
+        
+        # Create a cheat counter
+        self.cheat_counter = meter.create_up_down_counter(
+            name="cheats",
+            description="The number of times we cheat"
+        )
+        self.cheat_counter.add(0)  # Initialize the sword counter to 0
+        
         self.game_active = True
         self.current_location = "start"
         self.is_heating_forge = False
@@ -254,6 +261,10 @@ class AdventureGame:
         # Standard observation - exemplars will be handled automatically by the SDK
         return [metrics.Observation(value=sword_count, attributes={})]
 
+    def observe_cheats(self, observer):
+        # Standard observation - exemplars will be handled automatically by the SDK
+        return [metrics.Observation(value=self.cheat_counter, attributes={})]
+    
     def cool_forge(self):
         self.heat = 0
         self.is_heating_forge = False
@@ -293,6 +304,7 @@ class AdventureGame:
 
     def cheat(self):
         self.has_sword = True
+        self.cheat_counter.add(1) #increment cheat counter when cheating
         self.sword_counter.add(1)  # Increment sword counter when cheating
         return "You should continue north you cheater."
     
@@ -531,6 +543,7 @@ class AdventureGame:
         self.priest_alive = True
         self.heat = 0  # Reset the forge heat
         self.has_box = False
+        self.cheat_counter = 0
 
     # Restart the heat forge thread
         self.start_heat_forge_thread()
